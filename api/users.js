@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true }
+  name: { type: String, required: true, unique: true } // ✅ "name", not "username"
 });
+
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 const MONGO_URI = process.env.MONGO_URI;
