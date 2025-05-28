@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { roomname, password } = req.body;
 
-    if (!roomname || !password) {
+    if (!roomname ) {
       return res.status(400).json({ message: 'Room name and password are required' });
     }
 
