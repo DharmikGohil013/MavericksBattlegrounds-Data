@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Room name and password are required' });
     }
 
-    if (!password)
+    if (password)
        {
         if (!/^\d+$/.test(password)) {
       return res.status(400).json({ message: 'Password must contain only numbers' });
