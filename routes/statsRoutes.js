@@ -9,9 +9,17 @@ router.get('/counts', async (req, res) => {
     const totalUsers = await User.countDocuments();
     const totalAdmins = await AdminUser.countDocuments();
 
+    // Fetch all users' _id and name only
+    const users = await User.find({}, '_id name').lean();
+
+    // Fetch all admin users (all fields)
+    const admins = await AdminUser.find({}).lean();
+
     res.json({
       totalUsers,
-      totalAdmins
+      totalAdmins,
+      users,
+      admins
     });
   } catch (err) {
     console.error(err);
