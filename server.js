@@ -13,6 +13,7 @@ app.use(express.json());
 // Routes prefix
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/adminusers', require('./routes/adminUserRoutes'));
+app.use('/api/stats', require('./routes/statsRoutes'));
 
 
 
