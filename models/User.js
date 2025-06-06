@@ -6,7 +6,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  email: String,
+  email: {
+    type: String,
+    unique: true,       // <-- make email unique
+    sparse: true,       // <-- important to allow multiple docs without email
+  },
   avatarId: {
     type: Number,
     required: true,
