@@ -14,7 +14,7 @@ app.use(express.json());
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/adminusers', require('./routes/adminUserRoutes'));
 app.use('/api/stats', require('./routes/statsRoutes'));
-
+app.use('/api/lobbies', require('./routes/lobby'));
 
 
 
