@@ -1,23 +1,198 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
+// ✅ Create new user with optional welcome email and logo
 router.post('/', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, email, avatarId, totalkill } = req.body;
+
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
 
-    const user = new User({ name });
+    if (!avatarId) {
+      return res.status(400).json({ message: 'avatarId is required' });
+    }
+
+    const user = new User({
+      name,
+      email,
+      avatarId: avatarId || 1,
+      totalkill: totalkill || 0,
+    });
+
     await user.save();
 
-    res.status(201).json(user);
+    let emailStatus = 'not sent';
+
+    if (email) {
+      const logoUrl = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2';
+      const poster1Url = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2'; // Replace with real hosted URLs
+      const poster2Url = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2'; // Replace with real hosted URLs
+
+      const htmlContent = `
+  <div style="font-family: Arial, sans-serif; text-align: center; background-color: #111; color: #fff; padding: 30px;">
+    <img src="${logoUrl}" alt="App Logo" style="max-width: 150px; margin-bottom: 20px;" />
+    <h1 style="color: #00ffcc;">Welcome, ${name}!</h1>
+    <p style="font-size: 18px;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
+    
+    <p style="margin: 20px 0;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
+
+    <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
+    <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
+
+    <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
+    <p>Every kill earns you XP. Every win brings glory. 🕹️</p>
+
+    <p style="margin-top: 30px;">
+      Need help or support? Visit us anytime:<br/>
+      <a href="https://dharmikgohil.fun/" style="color: #00ccff; text-decoration: underline;">https://dharmikgohil.fun/</a>
+    </p>
+  </div>
+`;
+
+      const sent = await sendEmail(
+        email,
+        'Welcome to the Game!',
+        `Hi ${name}, welcome to the world of battle!`, // plain text fallback
+        htmlContent
+      );
+
+      emailStatus = sent ? 'sent' : 'failed';
+    }
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user,
+      emailStatus,
+    });
+
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'User name must be unique' });
+      return res.status(400).json({ message: 'Name must be unique' });
     }
     res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+
+// ✅ Update totalkill
+router.patch('/:id/kill', async (req, res) => {
+  try {
+    const { totalkill } = req.body;
+
+    if (typeof totalkill !== 'number') {
+      return res.status(400).json({ message: 'totalkill must be a number' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { totalkill },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'totalkill updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ Update or add email
+router.patch('/:id/email', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { email },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Email updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ Update avatarId
+router.patch('/:id/avatar', async (req, res) => {
+  try {
+    const { avatarId } = req.body;
+
+    if (typeof avatarId !== 'number') {
+      return res.status(400).json({ message: 'avatarId must be a number' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { avatarId },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Avatar updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ Update name
+router.patch('/:id/name', async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { name },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Name updated successfully', user });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Name must be unique' });
+    }
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ Get user by name
+router.get('/name/:name', async (req, res) => {
+  try {
+    const user = await User.findOne({ name: req.params.name });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
