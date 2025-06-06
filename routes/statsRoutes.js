@@ -3,7 +3,7 @@ const router = express.Router();
 
 const User = require('../models/User');
 const AdminUser = require('../models/AdminUser');
-const Lobby = require('../models/Lobby'); // Make sure this path is correct
+const Lobby = require('../models/Lobby');
 
 router.get('/counts', async (req, res) => {
   try {
@@ -11,13 +11,13 @@ router.get('/counts', async (req, res) => {
     const totalAdmins = await AdminUser.countDocuments();
     const totalLobby = await Lobby.countDocuments();
 
-    // Fetch all users' _id and name only
-    const users = await User.find({}, '_id name').lean();
+    // ✅ Fetch all user fields (full user info)
+    const users = await User.find({}).lean();
 
-    // Fetch all admin users (all fields)
+    // ✅ Fetch all admin users
     const admins = await AdminUser.find({}).lean();
 
-    // Fetch all lobby data (all fields)
+    // ✅ Fetch all lobby data
     const lobbies = await Lobby.find({}).lean();
 
     res.json({

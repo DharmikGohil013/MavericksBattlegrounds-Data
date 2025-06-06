@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: true,       // <-- make email unique
-    sparse: true,       // <-- important to allow multiple docs without email
+    unique: true,
+    sparse: true,
   },
   avatarId: {
     type: Number,
@@ -20,8 +20,16 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  level: {
+    type: Number,
+    default: 0,
+  },
+  totalMoney: {
+    type: Number,
+    default: 0,
+  },
 }, {
-  timestamps: true, // adds createdAt and updatedAt
+  timestamps: true,
 });
 
 const User = mongoose.model('User', userSchema);

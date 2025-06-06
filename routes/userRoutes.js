@@ -260,4 +260,41 @@ router.post('/bulk-email', async (req, res) => {
   }
 });
 
+// ✅ Get user by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+// ✅ General-purpose update for any user fields
+router.patch('/:id', async (req, res) => {
+  try {
+    const updateData = req.body;
+
+    if (!updateData || Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: 'No update data provided' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ message: 'User updated successfully', user });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Duplicate value: name or email must be unique' });
+    }
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 module.exports = router;
