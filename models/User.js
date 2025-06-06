@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
   },
   avatarId: {
     type: Number,
-    required: true,
     default: 1,
   },
   totalkill: {

@@ -2,8 +2,65 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const jwt = require('jsonwebtoken');
 
-// ✅ Create new user with optional welcome email and logo
+const JWT_SECRET = process.env.JWT_SECRET || 'a3f5e8b9c2d4f671234567890abcdef1234567890abcdef1234567890abcdef'; // Use env var in productio
+
+// JWT authentication middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Expect 'Bearer <token>'
+
+  if (!token) return res.status(401).json({ message: 'Access token required' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+    req.user = user; // Attach user payload from token to request
+    next();
+  });
+}
+
+// =====================
+// Routes
+// =====================
+
+// POST /login - Login user by name, returns JWT token
+router.post('/login', async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
+    const user = await User.findOne({ name });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid name or user not found' });
+    }
+
+    const payload = { id: user._id, name: user.name };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatarId: user.avatarId,
+        totalkill: user.totalkill,
+      },
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST / - Create new user (with optional welcome email)
 router.post('/', async (req, res) => {
   try {
     const { name, email, avatarId, totalkill } = req.body;
@@ -12,14 +69,12 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Name is required' });
     }
 
-    if (!avatarId) {
-      return res.status(400).json({ message: 'avatarId is required' });
-    }
+    
 
     const user = new User({
       name,
       email,
-      avatarId: avatarId || 1,
+      avatarId:  1,
       totalkill: totalkill || 0,
     });
 
@@ -29,23 +84,19 @@ router.post('/', async (req, res) => {
 
     if (email) {
       const logoUrl = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2';
-      const poster1Url = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2'; // Replace with real hosted URLs
-      const poster2Url = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2'; // Replace with real hosted URLs
+      const poster1Url = logoUrl; // Replace if needed
+      const poster2Url = logoUrl; // Replace if needed
 
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; text-align: center; background-color: #111; color: #fff; padding: 30px;">
           <img src="${logoUrl}" alt="App Logo" style="max-width: 150px; margin-bottom: 20px;" />
           <h1 style="color: #00ffcc;">Welcome, ${name}!</h1>
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
-          
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
-
           <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
           <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
-
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
-
           <p style="margin-top: 30px; color: #ffcc00;">
             Need help or support? Visit us anytime:<br/>
             <a href="https://dharmikgohil.fun/" style="color: #00ccff; text-decoration: underline;">https://dharmikgohil.fun/</a>
@@ -56,7 +107,7 @@ router.post('/', async (req, res) => {
       const sent = await sendEmail(
         email,
         'Welcome to the Game!',
-        `Hi ${name}, welcome to the world of battle!`, // plain text fallback
+        `Hi ${name}, welcome to the world of battle!`,
         htmlContent
       );
 
@@ -70,9 +121,7 @@ router.post('/', async (req, res) => {
     });
 
   } catch (err) {
-    
     if (err.code === 11000) {
-      // Duplicate key error handling for name or email
       if (err.keyPattern && err.keyPattern.name) {
         return res.status(400).json({ message: 'Name must be unique' });
       }
@@ -85,7 +134,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Update totalkill
+// PATCH /:id/kill - Update totalkill
 router.patch('/:id/kill', async (req, res) => {
   try {
     const { totalkill } = req.body;
@@ -100,9 +149,7 @@ router.patch('/:id/kill', async (req, res) => {
       { new: true }
     );
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'totalkill updated successfully', user });
   } catch (err) {
@@ -110,7 +157,7 @@ router.patch('/:id/kill', async (req, res) => {
   }
 });
 
-// ✅ Update or add email
+// PATCH /:id/email - Update or add email
 router.patch('/:id/email', async (req, res) => {
   try {
     const { email } = req.body;
@@ -125,9 +172,7 @@ router.patch('/:id/email', async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'Email updated successfully', user });
   } catch (err) {
@@ -138,7 +183,7 @@ router.patch('/:id/email', async (req, res) => {
   }
 });
 
-// ✅ Update avatarId
+// PATCH /:id/avatar - Update avatarId
 router.patch('/:id/avatar', async (req, res) => {
   try {
     const { avatarId } = req.body;
@@ -153,9 +198,7 @@ router.patch('/:id/avatar', async (req, res) => {
       { new: true }
     );
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'Avatar updated successfully', user });
   } catch (err) {
@@ -163,7 +206,7 @@ router.patch('/:id/avatar', async (req, res) => {
   }
 });
 
-// ✅ Update name
+// PATCH /:id/name - Update name
 router.patch('/:id/name', async (req, res) => {
   try {
     const { name } = req.body;
@@ -178,9 +221,7 @@ router.patch('/:id/name', async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'Name updated successfully', user });
   } catch (err) {
@@ -191,14 +232,12 @@ router.patch('/:id/name', async (req, res) => {
   }
 });
 
-// ✅ Get user by name
+// GET /name/:name - Get user by name
 router.get('/name/:name', async (req, res) => {
   try {
     const user = await User.findOne({ name: req.params.name });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json(user);
   } catch (err) {
@@ -206,7 +245,7 @@ router.get('/name/:name', async (req, res) => {
   }
 });
 
-// ✅ Bulk email to all users with customizable content and poster
+// POST /bulk-email - Bulk email to all users with customizable content and poster
 router.post('/bulk-email', async (req, res) => {
   try {
     const { subject, content, posterUrl } = req.body;
@@ -215,7 +254,6 @@ router.post('/bulk-email', async (req, res) => {
       return res.status(400).json({ message: 'subject, content, and posterUrl are required' });
     }
 
-    // Fetch all users with emails
     const users = await User.find({ email: { $exists: true, $ne: null } });
 
     if (users.length === 0) {
@@ -243,7 +281,7 @@ router.post('/bulk-email', async (req, res) => {
       const sent = await sendEmail(
         user.email,
         subject,
-        content, // plain text fallback
+        content,
         htmlContent
       );
 
@@ -260,7 +298,7 @@ router.post('/bulk-email', async (req, res) => {
   }
 });
 
-// ✅ Get user by ID
+// GET /:id - Get user by ID
 router.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -270,7 +308,8 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-// ✅ General-purpose update for any user fields
+
+// PATCH /:id - General update user
 router.patch('/:id', async (req, res) => {
   try {
     const updateData = req.body;
@@ -296,21 +335,17 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// ✅ Delete user by ID
+// DELETE /:id - Delete user by ID
 router.delete('/:id', async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-    if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'User deleted successfully', user: deletedUser });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-
 
 module.exports = router;
