@@ -94,7 +94,7 @@ router.post('/', async (req, res) => {
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
           <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
-          // <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
+          <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
           <p style="margin-top: 30px; color: #ffcc00;">
@@ -180,16 +180,16 @@ router.patch('/:id/email', async (req, res) => {
     try {
       const logoUrl = 'https://drive.google.com/uc?id=1PaWy6UhkC5mNAsiqpkMM5Lv71VPbLZf5';
       const poster1Url = 'https://drive.google.com/uc?id=12WRir1qJDVyoB4bvl2lvszCyr3PlPF2Y'; // Or any other relevant image
-      // const poster2Url = logoUrl;
+      
 
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; text-align: center; background-color: #111; color: #fff; padding: 30px;">
           <img src="${logoUrl}" alt="App Logo" style="max-width: 150px; margin-bottom: 20px;" />
-          <h1 style="color: #00ffcc;">Welcome, ${user.name}!</h1>
+          <h1 style="color: #00ffcc;">Challenger Detected, ${user.name}!</h1>
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
           <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
-          // <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
+          
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
           <p style="margin-top: 30px; color: #ffcc00;">
