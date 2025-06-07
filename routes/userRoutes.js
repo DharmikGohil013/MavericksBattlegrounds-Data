@@ -83,9 +83,9 @@ router.post('/', async (req, res) => {
     let emailStatus = 'not sent';
 
     if (email) {
-      const logoUrl = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2';
-      const poster1Url = logoUrl; // Replace if needed
-      const poster2Url = logoUrl; // Replace if needed
+      const logoUrl = 'https://drive.google.com/uc?id=1PaWy6UhkC5mNAsiqpkMM5Lv71VPbLZf5';
+      const poster1Url = 'https://drive.google.com/uc?id=12WRir1qJDVyoB4bvl2lvszCyr3PlPF2Y'; // Replace if needed
+      // const poster2Url = logoUrl; // Replace if needed
 
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; text-align: center; background-color: #111; color: #fff; padding: 30px;">
@@ -94,7 +94,7 @@ router.post('/', async (req, res) => {
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
           <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
-          <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
+          // <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
           <p style="margin-top: 30px; color: #ffcc00;">
@@ -178,9 +178,9 @@ router.patch('/:id/email', async (req, res) => {
     // --- Send welcome email logic ---
     let emailStatus = 'not sent';
     try {
-      const logoUrl = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2';
-      const poster1Url = logoUrl; // Or any other relevant image
-      const poster2Url = logoUrl;
+      const logoUrl = 'https://drive.google.com/uc?id=1PaWy6UhkC5mNAsiqpkMM5Lv71VPbLZf5';
+      const poster1Url = 'https://drive.google.com/uc?id=12WRir1qJDVyoB4bvl2lvszCyr3PlPF2Y'; // Or any other relevant image
+      // const poster2Url = logoUrl;
 
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; text-align: center; background-color: #111; color: #fff; padding: 30px;">
@@ -189,7 +189,7 @@ router.patch('/:id/email', async (req, res) => {
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
           <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
-          <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
+          // <img src="${poster2Url}" alt="Game Offer 2" style="max-width: 100%; margin-bottom: 30px;" />
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
           <p style="margin-top: 30px; color: #ffcc00;">
@@ -298,7 +298,7 @@ router.post('/bulk-email', async (req, res) => {
       return res.status(404).json({ message: 'No users with emails found' });
     }
 
-    const logoUrl = 'https://drive.google.com/uc?id=1cRCqvxF8qTzZyUksvKqhP7N-3xqozAN2';
+    const logoUrl = 'https://drive.google.com/uc?id=1PaWy6UhkC5mNAsiqpkMM5Lv71VPbLZf5';
 
     const results = [];
 
