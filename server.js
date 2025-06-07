@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
+const winItemRoutes = require('./routes/winItem');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/adminusers', require('./routes/adminUserRoutes'));
 app.use('/api/stats', require('./routes/statsRoutes'));
 app.use('/api/lobbies', require('./routes/lobby'));
+app.use('/api/winitem', winItemRoutes); 
 
 
 

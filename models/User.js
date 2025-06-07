@@ -27,10 +27,22 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  winItem: {
+    type: String,
+    enum: [
+      "Warden’s Crown",
+      "Knight’s Crown",
+      "Baron’s Crown",
+      "Duke’s Crown",
+      "Prince’s Crown",
+      "King’s Crown",
+      "Emperor’s Crown"
+    ],
+    default: "Warden’s Crown",
+  },
 }, {
   timestamps: true,
 });
 
 const User = mongoose.model('User', userSchema);
-
 module.exports = User;

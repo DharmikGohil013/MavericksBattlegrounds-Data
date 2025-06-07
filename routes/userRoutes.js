@@ -76,6 +76,7 @@ router.post('/', async (req, res) => {
       email,
       avatarId:  1,
       totalkill: totalkill || 0,
+      
     });
 
     await user.save();
@@ -372,6 +373,57 @@ router.patch('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+router.patch('/:id/totalMoney', async (req, res) => {
+  try {
+    const { totalMoney } = req.body;
+
+    if (typeof totalMoney !== 'number') {
+      return res.status(400).json({ message: 'totalMoney must be a number' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { totalMoney },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ message: 'Total money updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+// GET /winitem/:id - Get user's current crown
+router.get('/winitem/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id, 'winItem');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ winItem: user.winItem || "" });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// PATCH /winitem/:id - Update user's crown
+router.patch('/winitem/:id', async (req, res) => {
+  try {
+    const { winItem } = req.body;
+    if (typeof winItem !== 'string' || !winItem) {
+      return res.status(400).json({ message: 'winItem (crown name) is required' });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { winItem },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'Crown updated successfully', winItem: user.winItem });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // DELETE /:id - Delete user by ID
 router.delete('/:id', async (req, res) => {
