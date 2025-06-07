@@ -188,7 +188,7 @@ router.patch('/:id/email', async (req, res) => {
           <h1 style="color: #00ffcc;">Challenger Detected, ${user.name}!</h1>
           <p style="font-size: 18px;color: #ffcc00;">You've entered the arena. Get ready to fight, win, and become a legend!</p>
           <p style="margin: 20px 0;color: #ffcc00;">🔥 Join live lobbies, crush enemies, and climb the kill leaderboard!</p>
-          <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 100%; margin: 20px 0;" />
+          <img src="${poster1Url}" alt="Game Offer 1" style="max-width: 50%; margin: 20px 0;" />
           
           <h2 style="color: #ffcc00;">💥 Don’t just play… Dominate.</h2>
           <p style="color: #ffcc00;">Every kill earns you XP. Every win brings glory. 🕹️</p>
